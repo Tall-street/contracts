@@ -23,6 +23,24 @@ contract MockPriceSource is IPriceSource {
     }
 }
 
+/// @dev A local stand-in for a pool, for building the website: answers its current price for any moment up to now.
+///      Anyone can move the price, so it only ever runs on a local chain.
+contract LivePriceSource is IPriceSource {
+    uint256 public price;
+
+    constructor(uint256 price_) {
+        price = price_;
+    }
+
+    function setPrice(uint256 price_) external {
+        price = price_;
+    }
+
+    function priceAt(uint256 timestamp) external view returns (uint256) {
+        return timestamp <= block.timestamp ? price : 0;
+    }
+}
+
 /// @dev A pool oracle whose tick is `tickBefore` until `switchAt` and `tickAfter` from then on,
 ///      with observations kept back to `oldest`.
 contract MockV3Pool {

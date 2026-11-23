@@ -69,6 +69,27 @@ The pools were checked on-chain on 24 November 2026:
 - Metric pools and Uniswap v4 pools have no oracle a contract can read, so none are used.
 - AAPL and AMD have the thinnest pools, about $120–130k each, so they're the cheapest to push around. Watch them as pots grow.
 
+## A local street for the website
+
+`script/Local.s.sol` puts the game on a local Anvil chain, so the website's live game can be built and tested without keys. The chain gets stand-in prices, three rival crews and some floors.
+
+```
+anvil --block-time 2 --timestamp <a 20:00 UTC boundary in seconds, plus a few>
+cast rpc anvil_setCode 0xcA11bde05977b3631167028862bE2a173976CA11 $(cast code 0xcA11bde05977b3631167028862bE2a173976CA11 --rpc-url https://robinhood.drpc.org) --rpc-url http://127.0.0.1:8545
+forge script script/Local.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --gas-estimate-multiplier 500
+```
+
+- The second line copies Multicall3 from Robinhood Chain, which the website reads through.
+- Start the website with `NEXT_PUBLIC_CHAIN_ID=31337` and with `NEXT_PUBLIC_TALLSTREET_ADDRESS` set to the address the script prints.
+- On that chain the page offers a local test wallet.
+- Move a price with `setPrice` on a source. Move the clock with `cast rpc evm_increaseTime`.
+
+`recordPrices` (and `settle`, which calls it) only goes ahead when every price source gets its full gas allowance, so its gas limit must sit well above the gas it uses:
+
+- Forge sizes a transaction from the gas it used, so the script needs the multiplier.
+- Wallets estimate with the node and need nothing extra.
+- The keeper should send these calls with a gas limit of 1,000,000.
+
 ## Tests
 
 Install [Foundry](https://getfoundry.sh), then:
@@ -87,7 +108,7 @@ ROBINHOOD_RPC_URL=https://robinhood.drpc.org forge test --match-contract PoolsFo
 
 ## Before deploying
 
-- **Run the 20:00 UTC keeper.** It records the prices and closes the round, and needs a wallet with gas.
+- **Run the 20:00 UTC keeper.** It records the prices and closes the round, and needs a wallet with gas. Send its calls with a gas limit of 1,000,000.
 - **Set the $TALL thresholds** once the token is live.
 - **Choose the owner and treasury addresses.**
 - **Get a review or audit before real ETH.**
