@@ -48,6 +48,27 @@ The owner can't move the pot, change a settled result or touch anyone's claim.
 | Bigger orders | Holders place up to 100 floors per transaction instead of 20. |
 | Cheaper floors | Up to 20% off every floor at `fullDiscountStake` staked, proportional below it. |
 
+## Price pools
+
+Each tower reads a 30-minute average price from its stock's dollar pool on Robinhood Chain. `script/Deploy.s.sol` holds the list in the website's tower order. It reads which side of each pool the stock sits on, and it refuses a pool that doesn't pair the stock with USDG.
+
+| Tower | Pool | Pair |
+| --- | --- | --- |
+| NVDA | Uniswap v3 `0xd4EB21209C4D6093f80B5b84f5C45cc093EA14a3` | NVDA / USDG |
+| SPCX | Uniswap v3 `0xc61284332117c3FB23A2A56cceFFD07F7aF60029` | SPCX / USDG |
+| TSLA | Uniswap v3 `0xf4ACdAEEB7022862A763C9B1B885e11191c889E3` | TSLA / USDG |
+| AAPL | Uniswap v3 `0xAae0d815EE56e4092a5E5C2911E676Fea50B2d6D` | AAPL / USDG |
+| AMZN | Uniswap v3 `0x8AC92DA74AB5F3b1d024Dc1943Ad7e15Dc4179Ef` | AMZN / USDG |
+| MSFT | Uniswap v3 `0xeb60bCD1D920ad6E102690CCFC6fB488899E1510` | MSFT / USDG |
+| AMD | Uniswap v3 `0x48D284A2A4d3DC1b3Da08231Fe44317e7e7Aa51f` | AMD / USDG |
+| SPY | Aerodrome Slipstream `0x4A9b7cCBa4a3CD9Ee604AfA95d3DfA77D0d593e5` | SPY / USDG |
+
+The pools were checked on-chain on 24 November 2026:
+
+- Every pool keeps at least 3.5 hours of price history. A recording two hours late needs 2.5 hours.
+- Metric pools and Uniswap v4 pools have no oracle a contract can read, so none are used.
+- AAPL and AMD have the thinnest pools, about $120–130k each, so they're the cheapest to push around. Watch them as pots grow.
+
 ## Tests
 
 Install [Foundry](https://getfoundry.sh), then:
@@ -58,10 +79,16 @@ forge test
 
 The tests cover the published rules case by case (the docs' 70.5 street value, the 0.07 ETH pot split, ties, the holding rule, weights, the final hour) and the on-chain parts: price windows, source delays, broken and malformed sources, low gas limits, crew names, staking and perks. Fuzz tests check that the weight matches the published formula exactly and that every pot splits into the winners' 90% and the house 10%.
 
+A fork test reads every tower's live price through the deploy script's pools. It is skipped unless an RPC is given:
+
+```
+ROBINHOOD_RPC_URL=https://robinhood.drpc.org forge test --match-contract PoolsFork
+```
+
 ## Before deploying
 
-- **Pick each tower's price pool.** The stocks trade on different DEXes: some on Aerodrome Slipstream against USDG, AAPL on Uniswap v3 against WETH, TSLA on Metric. Each tower needs a pool this oracle can read, ideally priced in dollars, with enough observations kept for a 30-minute average.
 - **Run the 20:00 UTC keeper.** It records the prices and closes the round, and needs a wallet with gas.
 - **Set the $TALL thresholds** once the token is live.
 - **Choose the owner and treasury addresses.**
 - **Get a review or audit before real ETH.**
+- **Deploy:** `OWNER=0x.. TREASURY=0x.. forge script script/Deploy.s.sol --rpc-url <robinhood rpc> --broadcast`, with the deployer's key given at deploy time.
