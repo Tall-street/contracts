@@ -2,7 +2,25 @@
 
 The game contracts for Tall Street, a daily tower game on Robinhood Chain. They follow the rules published at [Tall-street/rules](https://github.com/Tall-street/rules): the same numbers, the same checks and the same rounding.
 
-Status: written and tested locally. **Not deployed and not audited.**
+Status: **deployed on Robinhood Chain** on 24 November 2026 and verified on Sourcify. **Not audited.**
+
+## Deployed on Robinhood Chain
+
+Chain 4663. Every contract is verified on [Sourcify](https://repo.sourcify.dev/4663/0xD96cb122028adBbe5e85C255598E66D2B9ab5999) with an exact match, and the deploy record is in `broadcast/Deploy.s.sol/4663/`.
+
+| Contract | Address |
+| --- | --- |
+| TallStreet | `0xD96cb122028adBbe5e85C255598E66D2B9ab5999` |
+| Price source, NVDA | `0x008261EB0a10401bB4544E5f223E62C5bFA93E60` |
+| Price source, SPCX | `0x1F3bd2E013639C46F353E0cFf53EC499cB5dFF07` |
+| Price source, TSLA | `0x5cda534647a4dc11F0e0c40f3d19a65c221E86B9` |
+| Price source, AAPL | `0x6f4Ee2B8E3E00a8021A6cE76eA36028B991604eD` |
+| Price source, AMZN | `0x0EF361A6184e2E71E007e91b05131716F4815a02` |
+| Price source, MSFT | `0x37488577CaeFca3A672E9bd3B4ad0c599997b238` |
+| Price source, AMD | `0x71104A4d7a711499290D6CADB2A6BbDC4aADBbce` |
+| Price source, SPY | `0xa372258459D23eE3BFF694E4e263Be092d50f0F8` |
+| Owner | `0xBC29FCcE61BFB72a196A8a09B74c715b0F137fc4` |
+| Treasury | `0x9EB9A33B1A9351071ca95EC2D730322F5075b666` |
 
 ## Contracts
 
@@ -106,10 +124,9 @@ A fork test reads every tower's live price through the deploy script's pools. It
 ROBINHOOD_RPC_URL=https://robinhood.drpc.org forge test --match-contract PoolsFork
 ```
 
-## Before deploying
+## Deployment
 
-- **Run the 20:00 UTC keeper.** It records the prices and closes the round, and needs a wallet with gas. Send its calls with a gas limit of 1,000,000.
-- **Set the $TALL thresholds** once the token is live.
-- **Choose the owner and treasury addresses.**
-- **Get a review or audit before real ETH.**
-- **Deploy:** `OWNER=0x.. TREASURY=0x.. forge script script/Deploy.s.sol --rpc-url <robinhood rpc> --broadcast`, with the deployer's key given at deploy time.
+- **How it was deployed:** `OWNER=0x.. TREASURY=0x.. forge script script/Deploy.s.sol --rpc-url <robinhood rpc> --broadcast --slow --interactives 1`, with the deployer's key typed at the prompt. It used 7.54M gas for 0.000151 ETH.
+- **The 20:00 UTC keeper** records the prices and closes played rounds from its own gas-only wallet. It sends its calls with a gas limit of 1,000,000, and a recording uses about 474,000 gas.
+- **The $TALL thresholds** are set once the token is live.
+- **Not audited.** The tests above are the only review so far.

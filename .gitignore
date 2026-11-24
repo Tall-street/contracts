@@ -18,3 +18,6 @@ docs/
 .env
 .env.*
 !.env.example
+
+# forge recovery locks
+*.recovery.lock
