@@ -108,7 +108,7 @@ forge script script/Local.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --ga
 
 - Forge sizes a transaction from the gas it used, so the script needs the multiplier.
 - Wallets estimate with the node and need nothing extra.
-- The keeper should send these calls with a gas limit of 1,000,000.
+- The keeper sends these calls with a gas limit of 3,000,000 (see Deployment).
 
 ## Tests
 
