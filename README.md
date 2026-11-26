@@ -2,15 +2,17 @@
 
 The game contracts for Tall Street, a daily tower game on Robinhood Chain. They follow the rules published at [Tall-street/rules](https://github.com/Tall-street/rules): the same numbers, the same checks and the same rounding.
 
-Status: **deployed on Robinhood Chain** on 24 November 2026 and verified on Sourcify. **Not audited.**
+Status: **deployed on Robinhood Chain** on 24 November 2026 and verified on Sourcify. **Open with $TALL** since 26 November 2026. **Not audited.**
 
 ## Deployed on Robinhood Chain
 
-Chain 4663. Every contract is verified on [Sourcify](https://repo.sourcify.dev/4663/0xD96cb122028adBbe5e85C255598E66D2B9ab5999) with an exact match, and the deploy record is in `broadcast/Deploy.s.sol/4663/`.
+Chain 4663. Every contract is verified on [Sourcify](https://repo.sourcify.dev/4663/0xD96cb122028adBbe5e85C255598E66D2B9ab5999) with an exact match. The deploy records are in `broadcast/Deploy.s.sol/4663/` and, for the staking contract, `broadcast/DeployStaking.s.sol/4663/`.
 
 | Contract | Address |
 | --- | --- |
 | TallStreet | `0xD96cb122028adBbe5e85C255598E66D2B9ab5999` |
+| TallStaking | `0x21f36721dc6Ee094DB3Fb3A9b96147898D034548` |
+| $TALL (the token, not one of these contracts) | `0x4c5FF4029f581010bEF5709EC0b909584b129BFb` |
 | Price source, NVDA | `0x008261EB0a10401bB4544E5f223E62C5bFA93E60` |
 | Price source, SPCX | `0x1F3bd2E013639C46F353E0cFf53EC499cB5dFF07` |
 | Price source, TSLA | `0x5cda534647a4dc11F0e0c40f3d19a65c221E86B9` |
@@ -127,6 +129,6 @@ ROBINHOOD_RPC_URL=https://robinhood.drpc.org forge test --match-contract PoolsFo
 ## Deployment
 
 - **How it was deployed:** `OWNER=0x.. TREASURY=0x.. forge script script/Deploy.s.sol --rpc-url <robinhood rpc> --broadcast --slow --interactives 1`, with the deployer's key typed at the prompt. It used 7.54M gas for 0.000151 ETH.
-- **The 20:00 UTC keeper** records the prices and closes played rounds from its own gas-only wallet. It sends its calls with a gas limit of 1,000,000, and a recording uses about 474,000 gas.
-- **The $TALL thresholds** are set once the token is live.
+- **The 20:00 UTC keeper** records the prices and closes played rounds from its own gas-only wallet. It sends its calls with a gas limit of 3,000,000: a recording uses about 1.22M gas, and the contract wants each of the eight price reads to have its full 300,000 gas allowance in reach, so 1,000,000 was too little.
+- **$TALL and staking** were set on 26 November 2026 by `script/DeployStaking.s.sol`, run from the owner's wallet: TallStaking deployed, `setTall` and `setPerks` called. A holder holds at least 1,000,000 $TALL, and the full 20% off comes at 10,000,000 staked. The script ran with `--evm-version cancun`, because the $TALL token's code uses MCOPY, and TallStaking is verified on Sourcify with the same setting.
 - **Not audited.** The tests above are the only review so far.
